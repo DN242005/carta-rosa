@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌹 Una Historia Tan Antigua Como El Tiempo</title>
+
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  font-family: 'Georgia', serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  color: #f5d76e;
+  background: url("img/1b8da0f0a0b9e87966a7746bc778e563.jpg") no-repeat center center/cover;
+  position: relative;
+}
+
+/* Oscurecer fondo */
+body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 0;
+}
+
+.contenido {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+/* ========================= */
+/* 🌹 CAMPANA DE CRISTAL */
+/* ========================= */
+
+.campana {
+  position: relative;
+  width: 130px;
+  height: 170px;
+  margin: auto;
+  animation: flotar 4s ease-in-out infinite;
+}
+
+.cristal {
+  position: absolute;
+  width: 100%;
+  height: 85%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-bottom: none;
+  border-radius: 140px 140px 0 0;
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Brillo vidrio */
+.cristal::after {
+  content: "";
+  position: absolute;
+  top: 15%;
+  left: 30%;
+  width: 35%;
+  height: 60%;
+  background: linear-gradient(
+    120deg,
+    rgba(255,255,255,0.6),
+    transparent
+  );
+  transform: rotate(25deg);
+  border-radius: 50%;
+}
+
+/* Base */
+.base {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 18%;
+  background: linear-gradient(to bottom, #3b2f2f, #1a1a1a);
+  border-radius: 0 0 140px 140px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+}
+
+/* Rosa */
+.rosa {
+  font-size: 75px;
+  text-shadow: 0 0 25px #ff4d6d;
+  animation: latido 2.5s ease-in-out infinite;
+}
+
+/* Animaciones */
+@keyframes flotar {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes latido {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.para {
+  font-size: 24px;
+  margin-top: 20px;
+}
+
+button {
+  margin-top: 25px;
+  padding: 14px 35px;
+  font-size: 16px;
+  border: none;
+  border-radius: 30px;
+  background: linear-gradient(45deg, gold, #f5d76e);
+  cursor: pointer;
+  transition: 0.3s;
+  font-weight: bold;
+}
+
+button:hover {
+  transform: scale(1.08);
+}
+
+/* Carta */
+.carta {
+  position: fixed;
+  bottom: -100%;
+  background: #fffaf0;
+  width: 85%;
+  max-width: 450px;
+  padding: 35px;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0px -8px 30px rgba(0,0,0,0.5);
+  transition: 0.8s ease;
+  text-align: center;
+  color: #5c4033;
+  z-index: 2;
+}
+
+.carta.abierta {
+  bottom: 0;
+}
+
+/* Confeti */
+.confeti {
+  position: fixed;
+  top: -10px;
+  width: 8px;
+  height: 12px;
+  background: gold;
+  opacity: 0.9;
+  animation: caer linear forwards;
+  z-index: 1;
+}
+
+@keyframes caer {
+  to {
+    transform: translateY(100vh) rotate(720deg);
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="contenido">
+
+  <div class="campana">
+    <div class="cristal">
+      <div class="rosa">🌹</div>
+    </div>
+    <div class="base"></div>
+  </div>
+
+  <div class="para">Para: <strong>Mi Bella</strong></div>
+  <button onclick="abrirCarta()">Tienes una carta</button>
+
+</div>
+
+<div class="carta" id="carta">
+  <h2>Siempre formaras parte de mi corazon</h2>
+  <p>
+    Gracias por compartir tu tiempo conmigo,
+    por ser esa persona que me hace senir especial 
+    desde que amanece hasta que anochece.
+    <br><br>
+    Eres muy especial para mi,
+    alguien que llevo en mi corazon y en mis pensamientos
+    siempre estare para ti cada vez que me necesites,
+    siempre cuidare de ti, todo sea por ver tu linda sonrisa.
+    Con cariño alguien te ama con el corazon.
+
+  </p>
+</div>
+
+<script>
+function abrirCarta() {
+  document.getElementById("carta").classList.add("abierta");
+  lanzarConfeti();
+}
+
+function lanzarConfeti() {
+  for (let i = 0; i < 120; i++) {
+    let confeti = document.createElement("div");
+    confeti.classList.add("confeti");
+    confeti.style.left = Math.random() * 100 + "vw";
+    confeti.style.animationDuration = (Math.random() * 2 + 2) + "s";
+    document.body.appendChild(confeti);
+    setTimeout(() => {
+      confeti.remove();
+    }, 4000);
+  }
+}
+</script>
+
+</body>
+</html>
