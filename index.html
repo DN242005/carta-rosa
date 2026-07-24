@@ -79,6 +79,14 @@ button:hover {
   bottom: 0;
 }
 
+/* Estilo para el texto de máquina de escribir */
+.texto-maquina {
+  white-space: pre-line;
+  text-align: left;
+  line-height: 1.6;
+  min-height: 150px;
+}
+
 /* ========================= */
 /* 🎵 REPRODUCTOR DE MÚSICA ESTILO IOS */
 /* ========================= */
@@ -224,6 +232,31 @@ button:hover {
   }
 }
 
+/* Corazones flotantes sutiles */
+.corazon-flotante {
+  position: fixed;
+  bottom: -20px;
+  font-size: 18px;
+  animation: subirCorazon linear forwards;
+  z-index: 1;
+  user-select: none;
+  pointer-events: none;
+}
+
+@keyframes subirCorazon {
+  0% {
+    transform: translateY(0) scale(0.6) rotate(0deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-105vh) scale(1.2) rotate(360deg);
+    opacity: 0;
+  }
+}
+
 </style>
 </head>
 
@@ -238,18 +271,7 @@ button:hover {
 
 <div class="carta" id="carta">
   <h2>FELICES 17 CORAZON</h2>
-  <p>
-    Para alguien especial:
-    Gracias por compartir tu tiempo conmigo,
-    por ser esa persona que me hace sentir especial 
-    desde que amanece hasta que anochece.
-    <br><br>
-    Eres,
-    alguien que llevo en mi corazon y en pensamientos
-    siempre estare para ti cada vez que me necesites,
-    espero que tengas un lindo dia y te la pases muy bien,
-    Con cariño alguien te ama con el corazon.
-  </p>
+  <div class="texto-maquina" id="textoMaquina"></div>
 
   <!-- Reproductor de música estilo iOS adaptado a la carta -->
   <div class="reproductor">
@@ -293,6 +315,18 @@ button:hover {
 let player;
 let actualizandoProgreso;
 let reproduciendo = false;
+let cartaAbierta = false;
+
+const mensajeCarta = `Para alguien especial:
+Gracias por compartir tu tiempo conmigo,
+por ser esa persona que me hace sentir especial 
+desde que amanece hasta que anochece.
+
+Eres,
+alguien que llevo en mi corazon y en pensamientos
+siempre estare para ti cada vez que me necesites,
+espero que tengas un lindo dia y te la pases muy bien,
+Con cariño alguien te ama con el corazon.`;
 
 // Inicializa el reproductor de YouTube con el link proporcionado
 function onYouTubeIframeAPIReady() {
@@ -315,8 +349,13 @@ function onPlayerReady(event) {
 }
 
 function abrirCarta() {
+  if (cartaAbierta) return;
+  cartaAbierta = true;
+
   document.getElementById("carta").classList.add("abierta");
   lanzarConfeti();
+  lanzarCorazonesContinuos();
+  iniciarEfectoMaquina();
   
   if (player && player.playVideo) {
     player.playVideo();
@@ -324,6 +363,23 @@ function abrirCarta() {
     reproduciendo = true;
     iniciarMonitoreo();
   }
+}
+
+// Efecto de máquina de escribir
+function iniciarEfectoMaquina() {
+  let i = 0;
+  const velocidad = 35; // Velocidad en milisegundos por letra
+  const contenedorTexto = document.getElementById("textoMaquina");
+  contenedorTexto.innerHTML = "";
+
+  function escribir() {
+    if (i < mensajeCarta.length) {
+      contenedorTexto.innerHTML += mensajeCarta.charAt(i) === '\n' ? '<br>' : mensajeCarta.charAt(i);
+      i++;
+      setTimeout(escribir, velocidad);
+    }
+  }
+  escribir();
 }
 
 function togglePlay() {
@@ -411,6 +467,21 @@ function lanzarConfeti() {
       confeti.remove();
     }, 4000);
   }
+}
+
+// Generador continuo de corazones flotantes
+function lanzarCorazonesContinuos() {
+  setInterval(() => {
+    let corazon = document.createElement("div");
+    corazon.classList.add("corazon-flotante");
+    corazon.innerHTML = "❤️";
+    corazon.style.left = Math.random() * 100 + "vw";
+    corazon.style.animationDuration = (Math.random() * 3 + 3) + "s";
+    document.body.appendChild(corazon);
+    setTimeout(() => {
+      corazon.remove();
+    }, 6000);
+  }, 400);
 }
 </script>
 
