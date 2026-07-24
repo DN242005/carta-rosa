@@ -137,17 +137,11 @@ button:hover {
 }
 
 .barra-progreso-activa {
-  width: 35%;
+  width: 0%;
   height: 100%;
   background: #5c4033;
   border-radius: 2px;
   position: relative;
-  animation: progresoMusica 210s linear infinite;
-}
-
-@keyframes progresoMusica {
-  0% { width: 15%; }
-  100% { width: 95%; }
 }
 
 .tiempos-cancion {
@@ -235,6 +229,9 @@ button:hover {
 
 <body>
 
+<!-- Reproductor de YouTube oculto -->
+<div id="player" style="display:none;"></div>
+
 <div class="contenido">
   <button onclick="abrirCarta()">Tienes una carta</button>
 </div>
@@ -264,19 +261,19 @@ button:hover {
       <div class="icono-airplay">🔊</div>
     </div>
 
-    <div class="barra-progreso-container">
+    <div class="barra-progreso-container" id="contenedorProgreso" onclick="cambiarProgreso(event)">
       <div class="barra-progreso-activa" id="barraProgreso"></div>
     </div>
     
     <div class="tiempos-cancion">
-      <span id="tiempoActual">1:12</span>
-      <span id="tiempoTotal">-2:48</span>
+      <span id="tiempoActual">0:00</span>
+      <span id="tiempoTotal">0:00</span>
     </div>
 
     <div class="controles">
-      <button class="btn-control">⏮</button>
-      <button class="btn-control btn-play-pause" id="btnPlayPause" onclick="togglePlaySimulado()">⏸</button>
-      <button class="btn-control">⏭</button>
+      <button class="btn-control" onclick="reiniciarCancion()">⏮</button>
+      <button class="btn-control btn-play-pause" id="btnPlayPause" onclick="togglePlay()">▶</button>
+      <button class="btn-control" onclick="adelantarCancion()">⏭</button>
     </div>
 
     <div class="control-volumen">
@@ -289,10 +286,118 @@ button:hover {
   </div>
 </div>
 
+<!-- Cargar la API de YouTube de forma oficial -->
+<script src="https://www.youtube.com/iframe_api"></script>
+
 <script>
+let player;
+let actualizandoProgreso;
+let reproduciendo = false;
+
+// Inicializa el reproductor de YouTube con el link proporcionado
+function onYouTubeIframeAPIReady() {
+  player = new YT.Player('player', {
+    height: '1',
+    width: '1',
+    videoId: 'is_iOZeHTfU',
+    playerVars: {
+      'autoplay': 0,
+      'controls': 0
+    },
+    events: {
+      'onReady': onPlayerReady
+    }
+  });
+}
+
+function onPlayerReady(event) {
+  actualizarTiempos();
+}
+
 function abrirCarta() {
   document.getElementById("carta").classList.add("abierta");
   lanzarConfeti();
+  
+  if (player && player.playVideo) {
+    player.playVideo();
+    document.getElementById("btnPlayPause").innerHTML = "⏸";
+    reproduciendo = true;
+    iniciarMonitoreo();
+  }
+}
+
+function togglePlay() {
+  if (!player) return;
+  if (reproduciendo) {
+    player.pauseVideo();
+    document.getElementById("btnPlayPause").innerHTML = "▶";
+    reproduciendo = false;
+    detenerMonitoreo();
+  } else {
+    player.playVideo();
+    document.getElementById("btnPlayPause").innerHTML = "⏸";
+    reproduciendo = true;
+    iniciarMonitoreo();
+  }
+}
+
+function reiniciarCancion() {
+  if (!player) return;
+  player.seekTo(0);
+  player.playVideo();
+  document.getElementById("btnPlayPause").innerHTML = "⏸";
+  reproduciendo = true;
+  iniciarMonitoreo();
+}
+
+function adelantarCancion() {
+  if (!player) return;
+  let tiempoActualSeg = player.getCurrentTime();
+  player.seekTo(tiempoActualSeg + 10);
+}
+
+function cambiarProgreso(event) {
+  if (!player || !player.getDuration) return;
+  const contenedor = document.getElementById("contenedorProgreso");
+  const anchoTotal = contenedor.clientWidth;
+  const clickX = event.offsetX;
+  const porcentaje = clickX / anchoTotal;
+  const nuevoTiempo = porcentaje * player.getDuration();
+  player.seekTo(nuevoTiempo);
+  document.getElementById("barraProgreso").style.width = (porcentaje * 100) + "%";
+}
+
+function iniciarMonitoreo() {
+  detenerMonitoreo();
+  actualizandoProgreso = setInterval(() => {
+    if (player && player.getCurrentTime && player.getDuration) {
+      const actual = player.getCurrentTime();
+      const total = player.getDuration();
+      const porcentaje = (actual / total) * 100;
+      
+      document.getElementById("barraProgreso").style.width = porcentaje + "%";
+      document.getElementById("tiempoActual").textContent = formatearTiempo(actual);
+      document.getElementById("tiempoTotal").textContent = "-" + formatearTiempo(total - actual);
+    }
+  }, 500);
+}
+
+function detenerMonitoreo() {
+  clearInterval(actualizandoProgreso);
+}
+
+function actualizarTiempos() {
+  if (player && player.getDuration) {
+    const total = player.getDuration();
+    document.getElementById("tiempoTotal").textContent = "-" + formatearTiempo(total);
+  }
+}
+
+function formatearTiempo(segundos) {
+  if (isNaN(segundos)) return "0:00";
+  const min = Math.floor(segundos / 60);
+  const sec = Math.floor(segundos % 60);
+  return `${min}:${sec < 10 ? '0' : ''}${sec}`;
 }
 
 function lanzarConfeti() {
@@ -305,23 +410,6 @@ function lanzarConfeti() {
     setTimeout(() => {
       confeti.remove();
     }, 4000);
-  }
-}
-
-// Simulación interactiva del botón play/pause del reproductor
-let reproduciendo = true;
-function togglePlaySimulado() {
-  const btn = document.getElementById("btnPlayPause");
-  const barra = document.getElementById("barraProgreso");
-  
-  if (reproduciendo) {
-    btn.innerHTML = "▶";
-    barra.style.animationPlayState = "paused";
-    reproduciendo = false;
-  } else {
-    btn.innerHTML = "⏸";
-    barra.style.animationPlayState = "running";
-    reproduciendo = true;
   }
 }
 </script>
